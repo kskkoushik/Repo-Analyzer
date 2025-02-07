@@ -3,6 +3,8 @@
 import { PlaceholdersAndVanishInput } from "@/components/ui/placeholders-and-vanish-input";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Loader from "@/components/hamster";
+import { useVulnerability } from "@/app/context/problemcon";
 
 export function PlaceholdersAndVanishInputDemo() {
   const placeholders = [
@@ -14,6 +16,8 @@ export function PlaceholdersAndVanishInputDemo() {
   ];
 
   const [repoUrl, setRepoUrl] = useState("");
+  const [loading, setLoading] = useState(false); // Add loading state
+  const { setData } = useVulnerability();
 
   const router = useRouter();
 
@@ -29,6 +33,8 @@ export function PlaceholdersAndVanishInputDemo() {
       return;
     }
 
+    setLoading(true); // Start loading
+
     try {
       const response = await fetch("http://localhost:5000/analyze-repo", {
         method: "POST",
@@ -39,18 +45,31 @@ export function PlaceholdersAndVanishInputDemo() {
       });
 
       const data = await response.json();
+      setData(data);
+      localStorage.setItem("user", JSON.stringify(data));
       console.log("Response from server:", data);
-      router.push("/dashboard"); // Redirect to results page with the analyzed repository URL
+
+      setLoading(false); // Stop loading after response
+      router.push("/dashboard"); // Redirect to results page
     } catch (error) {
       console.error("Error submitting repository URL:", error);
+      setLoading(false); // Stop loading in case of error
     }
   };
 
   return (
-    <PlaceholdersAndVanishInput
-      placeholders={placeholders}
-      onChange={handleChange}
-      onSubmit={onSubmit}
-    />
+    <>
+      {loading ? (
+        <div className="flex justify-center items-center">
+          <Loader />
+        </div>
+      ) : (
+        <PlaceholdersAndVanishInput
+          placeholders={placeholders}
+          onChange={handleChange}
+          onSubmit={onSubmit}
+        />
+      )}
+    </>
   );
 }

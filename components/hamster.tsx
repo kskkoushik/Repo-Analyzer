@@ -1,7 +1,4 @@
-"use client";
-
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import React from "react";
 import styled from "styled-components";
 
 const Loader = () => {
@@ -32,42 +29,6 @@ const Loader = () => {
     </StyledWrapper>
   );
 };
-
-export function DynamicTextUpdater() {
-  const [text, setText] = useState("Loading...");
-  const router = useRouter();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const response = await fetch("http://localhost:5000/stream-text");
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let accumulatedText = "";
-
-      if (reader) {
-        while (true) {
-          const { value, done } = await reader.read();
-          if (done) {
-            setTimeout(() => router.push("/next-page"), 1000); // Navigate after final text
-            break;
-          }
-          accumulatedText += decoder.decode(value, { stream: true });
-          setText(accumulatedText);
-        }
-      }
-    };
-
-    fetchData();
-  }, [router]);
-
-  return (
-    <div>
-      <Loader />
-      <h1>Live Text Update</h1>
-      <p>{text}</p>
-    </div>
-  );
-}
 
 const StyledWrapper = styled.div`
   .wheel-and-hamster {
