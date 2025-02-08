@@ -47,6 +47,8 @@ export function PlaceholdersAndVanishInputDemo() {
       const data = await response.json();
       setData(data);
       localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("rurl", JSON.stringify(repoUrl));
+
       console.log("Response from server:", data);
 
       setLoading(false); // Stop loading after response
